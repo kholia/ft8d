@@ -3,7 +3,7 @@ program ft8d
 ! Decode FT8 data read from *.c2 files.
 
   include 'ft8_params.f90'
-  character infile*80,msg37*37,date*6,time*4
+  character infile*80,msg37*37,date*6,time*4,df*8
   character msgcall*13,msggrid*4
   character*37 allmessages(MAXCAND)
   real s(NFFT1,NHSYM)
@@ -31,11 +31,14 @@ program ft8d
 
   call getarg(1,infile)
   open(10,file=infile,status='old',access='stream')
-  read(10,end=999) dialfreq,dd
+  read(10,end=999) dd
+!  read(10,end=999) dialfreq,dd
   close(10)
   j2=index(infile,'.c2')
+  df=infile(j2-20:j2-13)
   date=infile(j2-11:j2-6)
   time=infile(j2-4:j2-1)
+  read(df ,*) dialfreq
   do ipart=1,4
     nQSOProgress=0
     ndecodes=0
@@ -94,4 +97,3 @@ program ft8d
   enddo ! ipart loop
 
 999 end program ft8d
-
