@@ -3,14 +3,17 @@ program ft8d
 ! Decode FT8 data read from *.c2 files.
 
   include 'ft8_params.f90'
-  character infile*80,msg37*37,date*6,time*4,df*8
+  character infile*80,msg37*37
+  !character date*6,time*4
+  character df*8
   character msgcall*13,msggrid*4
   character*37 allmessages(MAXCAND)
   real s(NFFT1,NHSYM)
   real sbase(NFFT1)
   real candidate(3,MAXCAND)
   real*8 dialfreq
-  complex dd(NMAX,4)
+  ! complex dd(NMAX,4)
+  complex dd(NMAX,1)
   logical newdat,lft8apon,lsubtract,ldupe
   integer allsnrs(MAXCAND)
   integer apsym(58)
@@ -32,14 +35,16 @@ program ft8d
   call getarg(1,infile)
   open(10,file=infile,status='old',access='stream')
   read(10,end=999) dd
-!  read(10,end=999) dialfreq,dd
+  ! read(10,end=999) dialfreq,dd
   close(10)
   j2=index(infile,'.c2')
-  df=infile(j2-20:j2-13)
-  date=infile(j2-11:j2-6)
-  time=infile(j2-4:j2-1)
+  !df=infile(j2-20:j2-13)
+  df=infile(j2-8:j2)
+  !date=infile(j2-11:j2-6)
+  !time=infile(j2-4:j2-1)
   read(df ,*) dialfreq
-  do ipart=1,4
+  ! dialfreq = 14074000.0 ! temporary hack
+  do ipart=1,1
     nQSOProgress=0
     ndecodes=0
     n2=0
@@ -88,9 +93,11 @@ program ft8d
           ndecodes=ndecodes+1
           allmessages(ndecodes)=msg37
           allsnrs(ndecodes)=nsnr
-          write(*,1004) date,time,15*(ipart-1),min(sync,999.0),nint(xsnr), &
-              xdt,nint(f1-2000+dialfreq),msgcall,msggrid
-1004      format(a6,1x,a4,i2.2,f6.1,i4,f6.2,i9,1x,a13,1x,a4)
+          ! write(*,1004) date,time,15*(ipart-1),min(sync,999.0),nint(xsnr), &
+          write(*,1004) 15*(ipart-1),min(sync,999.0),nint(xsnr), &
+              !xdt,nint(f1-2000+dialfreq),msgcall,msggrid
+              xdt,nint(f1-2000+dialfreq),msg37,msggrid
+1004      format(1x,i2.2,f6.1,i4,f6.2,i9,1x,a20,1x,a4)
         endif
       enddo
     enddo
